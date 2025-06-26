@@ -157,7 +157,7 @@ export default function NewUserPage() {
             <div className="text-sm text-green-700 space-y-1">
               <p><strong>Email:</strong> {createdUser.email}</p>
               <p><strong>Role:</strong> {formData.role === "SUPER_ADMIN" ? "Super Admin" : "Admin"}</p>
-              <p><strong>Login URL:</strong> <code className="bg-white px-1 rounded">/login</code></p>
+              <p><strong>Login URL:</strong> <code className="bg-white px-1 rounded">/</code></p>
             </div>
           </div>
         </div>

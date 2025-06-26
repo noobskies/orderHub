@@ -83,7 +83,7 @@ export const authConfig = {
     }),
   ],
   pages: {
-    signIn: "/login",
+    signIn: "/",
   },
   callbacks: {
     async jwt({ token, user }) {
