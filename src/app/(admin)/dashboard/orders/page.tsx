@@ -31,6 +31,12 @@ type Order = {
     name: string;
     email: string;
   };
+  endConsumer?: {
+    id: string;
+    email: string;
+    name: string | null;
+    phone: string | null;
+  } | null;
   createdAt: Date;
   processedAt?: Date | null;
 };
@@ -106,6 +112,29 @@ function OrderRow({ order }: { order: Order }) {
             </div>
           </div>
         </div>
+      </TableCell>
+      <TableCell>
+        {order.endConsumer ? (
+          <div className="flex items-center">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="text-xs">
+                {order.endConsumer.name ? order.endConsumer.name.charAt(0).toUpperCase() : order.endConsumer.email.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="ml-3">
+              <div className="text-sm font-medium">
+                {order.endConsumer.name || "Anonymous"}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {order.endConsumer.email}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">
+            No end consumer data
+          </div>
+        )}
       </TableCell>
       <TableCell>
         <Badge variant={getStatusVariant(order.status)}>
@@ -274,7 +303,8 @@ async function OrderTable() {
           <TableHeader>
             <TableRow>
               <TableHead>Order</TableHead>
-              <TableHead>Customer</TableHead>
+              <TableHead>B2B Customer</TableHead>
+              <TableHead>End Consumer</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Items</TableHead>
               <TableHead>Amount</TableHead>

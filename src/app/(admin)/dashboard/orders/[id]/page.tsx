@@ -297,12 +297,12 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
               </CardContent>
             </Card>
 
-            {/* Customer Information */}
+            {/* B2B Customer Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <UserIcon className="h-5 w-5 mr-2" />
-                  Customer
+                  B2B Customer
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -324,6 +324,65 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
                 </Button>
               </CardContent>
             </Card>
+
+            {/* End Consumer Information */}
+            {order.endConsumer && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <UserIcon className="h-5 w-5 mr-2" />
+                    End Consumer
+                  </CardTitle>
+                  <CardDescription>
+                    Customer shopping via {order.customer.name}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <Avatar>
+                        <AvatarFallback>
+                          {order.endConsumer.name ? order.endConsumer.name.charAt(0).toUpperCase() : order.endConsumer.email.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">
+                          {order.endConsumer.name || "Anonymous Customer"}
+                        </p>
+                        <p className="text-sm text-muted-foreground">{order.endConsumer.email}</p>
+                        {order.endConsumer.phone && (
+                          <p className="text-sm text-muted-foreground">{order.endConsumer.phone}</p>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Total Orders</p>
+                        <p className="font-medium">{order.endConsumer.totalOrderCount}</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Total Spent</p>
+                        <p className="font-medium">
+                          {order.currency} {Number(order.endConsumer.totalOrderValue).toFixed(2)}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {order.endConsumer.lastOrderDate && (
+                      <div className="text-sm">
+                        <p className="text-muted-foreground">Last Order</p>
+                        <p className="font-medium">
+                          {new Date(order.endConsumer.lastOrderDate).toLocaleDateString()}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Shipping Address */}
             <Card>
