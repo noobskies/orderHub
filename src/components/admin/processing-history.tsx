@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { 
   ClockIcon,
-  UserIcon,
   DocumentTextIcon
 } from "@heroicons/react/24/outline";
 import { api } from "@/trpc/react";
@@ -197,7 +196,7 @@ export function ProcessingHistory({ orderId }: ProcessingHistoryProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {history.map((entry, index) => (
+          {history.map((entry) => (
             <div key={entry.id} className="flex items-start space-x-4 p-4 border rounded-lg">
               <div className="flex-shrink-0">
                 {entry.adminUser ? (

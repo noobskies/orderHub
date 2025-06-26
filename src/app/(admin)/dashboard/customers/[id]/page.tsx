@@ -89,7 +89,7 @@ async function CustomerStatsContent({ customerId }: { customerId: string }) {
         </div>
       </div>
     );
-  } catch (error) {
+  } catch {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-4">
         <p className="text-red-600 text-sm">Failed to load customer statistics</p>
@@ -312,8 +312,7 @@ async function CustomerDetailContent({ id }: { id: string }) {
         <RecentOrders orders={customer.orders} />
       </div>
     );
-  } catch (error) {
-    console.error("Failed to load customer:", error);
+  } catch {
     notFound();
   }
 }

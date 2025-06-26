@@ -1,12 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
   ArrowLeftIcon,
-  EyeIcon,
-  EyeSlashIcon,
   ClipboardDocumentIcon
 } from "@heroicons/react/24/outline";
 import { api } from "@/trpc/react";
@@ -62,7 +59,6 @@ const priorities = [
 ];
 
 export default function NewCustomerPage() {
-  const router = useRouter();
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [createdCustomer, setCreatedCustomer] = useState<{ id: string; apiKey: string; apiSecret: string } | null>(null);
@@ -150,7 +146,7 @@ export default function NewCustomerPage() {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Customer Created Successfully!</h1>
             <p className="text-sm text-gray-500">
-              Save these API credentials - they won't be shown again
+              Save these API credentials - they won&apos;t be shown again
             </p>
           </div>
         </div>
@@ -167,7 +163,7 @@ export default function NewCustomerPage() {
             </div>
             <div className="ml-3">
               <h3 className="text-lg font-medium text-green-800">
-                Customer "{formData.name}" has been created
+                Customer &quot;{formData.name}&quot; has been created
               </h3>
               <p className="text-sm text-green-700">
                 Please save these API credentials securely
@@ -326,7 +322,7 @@ export default function NewCustomerPage() {
                 placeholder="https://api.acme.com/webhooks/order-processed"
               />
               <p className="mt-2 text-sm text-gray-500">
-                We'll send processed order results to this URL
+                We&apos;ll send processed order results to this URL
               </p>
               {errors.webhookUrl && (
                 <p className="mt-2 text-sm text-red-600">{errors.webhookUrl}</p>

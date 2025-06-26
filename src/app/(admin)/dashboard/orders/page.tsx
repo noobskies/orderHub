@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { 
-  PlusIcon, 
   ClipboardDocumentListIcon,
   EyeIcon,
   PlayIcon,
@@ -11,7 +10,7 @@ import {
   PauseIcon
 } from "@heroicons/react/24/outline";
 import { api } from "@/trpc/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -224,8 +223,7 @@ async function OrderStats() {
         </Card>
       </div>
     );
-  } catch (error) {
-    console.error("Failed to load order stats:", error);
+  } catch {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
@@ -299,8 +297,7 @@ async function OrderTable() {
         </Table>
       </Card>
     );
-  } catch (error) {
-    console.error("Failed to load orders:", error);
+  } catch {
     return (
       <Card>
         <CardContent>

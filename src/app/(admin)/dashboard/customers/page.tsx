@@ -4,11 +4,10 @@ import {
   PlusIcon, 
   UsersIcon,
   EyeIcon,
-  PencilIcon,
-  KeyIcon
+  PencilIcon
 } from "@heroicons/react/24/outline";
 import { api } from "@/trpc/server";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -142,8 +141,7 @@ async function CustomerTable() {
         </Table>
       </Card>
     );
-  } catch (error) {
-    console.error("Failed to load customers:", error);
+  } catch {
     return (
       <Card>
         <CardContent>

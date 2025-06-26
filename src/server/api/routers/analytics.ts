@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import type { Prisma } from "@prisma/client";
 
 export const analyticsRouter = createTRPCRouter({
   // Get dashboard metrics
@@ -11,15 +12,15 @@ export const analyticsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const where: Record<string, any> = {};
+      const where: Prisma.OrderWhereInput = {};
 
       if (input.dateFrom || input.dateTo) {
         where.createdAt = {};
         if (input.dateFrom) {
-          where.createdAt.gte = input.dateFrom;
+          (where.createdAt as Prisma.DateTimeFilter).gte = input.dateFrom;
         }
         if (input.dateTo) {
-          where.createdAt.lte = input.dateTo;
+          (where.createdAt as Prisma.DateTimeFilter).lte = input.dateTo;
         }
       }
 
@@ -117,14 +118,12 @@ export const analyticsRouter = createTRPCRouter({
 
       orders.forEach((order) => {
         const dateKey = order.createdAt.toISOString().split("T")[0]!;
-        if (!ordersByDate[dateKey]) {
-          ordersByDate[dateKey] = {
-            date: dateKey,
-            totalOrders: 0,
-            completedOrders: 0,
-            revenue: 0,
-          };
-        }
+        ordersByDate[dateKey] ??= {
+          date: dateKey,
+          totalOrders: 0,
+          completedOrders: 0,
+          revenue: 0,
+        };
 
         ordersByDate[dateKey].totalOrders++;
         if (order.status === "COMPLETED") {
@@ -193,15 +192,15 @@ export const analyticsRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const where: Record<string, any> = {};
+      const where: Prisma.OrderWhereInput = {};
 
       if (input.dateFrom || input.dateTo) {
         where.createdAt = {};
         if (input.dateFrom) {
-          where.createdAt.gte = input.dateFrom;
+          (where.createdAt as Prisma.DateTimeFilter).gte = input.dateFrom;
         }
         if (input.dateTo) {
-          where.createdAt.lte = input.dateTo;
+          (where.createdAt as Prisma.DateTimeFilter).lte = input.dateTo;
         }
       }
 

@@ -78,8 +78,8 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
       toast.success("Order processing started");
       router.refresh();
     },
-    onError: (error) => {
-      toast.error(`Failed to start processing: ${error.message}`);
+    onError: () => {
+      toast.error("Failed to start processing");
     },
   });
 
@@ -88,8 +88,8 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
       toast.success("Order status updated");
       router.refresh();
     },
-    onError: (error) => {
-      toast.error(`Failed to update status: ${error.message}`);
+    onError: () => {
+      toast.error("Failed to update status");
     },
   });
 
@@ -98,8 +98,8 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
       toast.success("Order completed successfully");
       router.refresh();
     },
-    onError: (error) => {
-      toast.error(`Failed to complete order: ${error.message}`);
+    onError: () => {
+      toast.error("Failed to complete order");
     },
   });
 
@@ -128,7 +128,7 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
     
     try {
       await startProcessingMutation.mutateAsync({ id: order.id });
-    } catch (error) {
+    } catch {
       // Error handled in mutation
     }
   }
@@ -142,7 +142,7 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
         status: status as "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | "CANCELLED" | "ON_HOLD",
         notes,
       });
-    } catch (error) {
+    } catch {
       // Error handled in mutation
     }
   }
@@ -158,7 +158,7 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
         processingNotes: data.processingNotes,
         items: data.items,
       });
-    } catch (error) {
+    } catch {
       // Error handled in mutation
     } finally {
       setIsProcessing(false);

@@ -302,7 +302,7 @@ export const customerRouter = createTRPCRouter({
         processingOrders,
         completedOrders,
         failedOrders,
-        totalRevenue: totalRevenue._sum.processedTotal || 0,
+        totalRevenue: totalRevenue._sum.processedTotal ?? 0,
         successRate:
           totalOrders > 0 ? (completedOrders / totalOrders) * 100 : 0,
       };

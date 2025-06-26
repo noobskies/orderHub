@@ -1,6 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import bcrypt from "bcryptjs";
 import { db } from "@/server/db";
 
 // Validation schema for incoming orders
@@ -110,7 +109,7 @@ export async function POST(
     const customer = authResult.customer!;
 
     // Parse request body
-    const body = await request.json();
+    const body = (await request.json()) as unknown;
 
     // Validate order data
     const validationResult = orderSchema.safeParse(body);

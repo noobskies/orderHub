@@ -159,7 +159,7 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {order.items.map((item, index) => (
+                  {order.items.map((item) => (
                     <div key={item.id} className="flex items-start space-x-4 p-4 border rounded-lg">
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
@@ -375,8 +375,7 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
         </div>
       </div>
     );
-  } catch (error) {
-    console.error("Failed to load order:", error);
+  } catch {
     return (
       <div className="text-center py-12">
         <p className="text-destructive">Failed to load order</p>
