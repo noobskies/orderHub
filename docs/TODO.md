@@ -9,6 +9,7 @@
 - [x] **Design core database schema**
   - [x] AdminUser model (multiple admin users)
   - [x] Customer model (e-commerce clients)
+  - [x] EndConsumer model (end consumers who place orders)
   - [x] Order model (incoming orders)
   - [x] OrderItem model (items within orders)
   - [x] ProcessingLog model (audit trail)
@@ -146,6 +147,7 @@
   - [x] Order router (complete management + processing)
   - [x] User router (admin user management)
   - [x] Analytics router (dashboard metrics + trends)
+  - [x] EndConsumer router (end consumer management + stats)
 - [x] **Error handling** 🔥
   - [x] tRPC error handling with proper codes
   - [x] API error handling in webhooks

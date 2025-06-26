@@ -113,6 +113,14 @@ export const orderRouter = createTRPCRouter({
                 email: true,
               },
             },
+            endConsumer: {
+              select: {
+                id: true,
+                email: true,
+                name: true,
+                phone: true,
+              },
+            },
             items: {
               select: {
                 id: true,
@@ -157,6 +165,17 @@ export const orderRouter = createTRPCRouter({
               email: true,
               currency: true,
               timezone: true,
+            },
+          },
+          endConsumer: {
+            select: {
+              id: true,
+              email: true,
+              name: true,
+              phone: true,
+              totalOrderCount: true,
+              totalOrderValue: true,
+              lastOrderDate: true,
             },
           },
           items: true,

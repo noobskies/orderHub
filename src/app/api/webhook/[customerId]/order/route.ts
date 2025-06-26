@@ -7,7 +7,11 @@ const orderSchema = z.object({
   orderId: z.string(),
   orderNumber: z.string().optional(),
   customerId: z.string(),
-  customerEmail: z.string().email().optional(),
+  endConsumer: z.object({
+    email: z.string().email(),
+    name: z.string().optional(),
+    phone: z.string().optional(),
+  }),
   items: z.array(
     z.object({
       id: z.string(),
@@ -151,13 +155,33 @@ export async function POST(
       );
     }
 
+    // Find or create end consumer
+    let endConsumer = await db.endConsumer.findUnique({
+      where: {
+        email_sourceCustomerId: {
+          email: orderData.endConsumer.email,
+          sourceCustomerId: customerId,
+        },
+      },
+    });
+
+    endConsumer ??= await db.endConsumer.create({
+      data: {
+        email: orderData.endConsumer.email,
+        name: orderData.endConsumer.name,
+        phone: orderData.endConsumer.phone,
+        sourceCustomerId: customerId,
+        preferredCurrency: orderData.currency,
+      },
+    });
+
     // Create order in database
     const order = await db.order.create({
       data: {
         externalOrderId: orderData.orderId,
         orderNumber: orderData.orderNumber,
         customerId,
-        customerEmail: orderData.customerEmail,
+        endConsumerId: endConsumer.id,
         status: "PENDING",
         priority: customer.processingPriority,
         originalTotal: orderData.originalTotal,
@@ -180,6 +204,16 @@ export async function POST(
             status: "PENDING",
           })),
         },
+      },
+    });
+
+    // Update end consumer statistics
+    await db.endConsumer.update({
+      where: { id: endConsumer.id },
+      data: {
+        lastOrderDate: new Date(),
+        totalOrderCount: { increment: 1 },
+        totalOrderValue: { increment: orderData.originalTotal },
       },
     });
 

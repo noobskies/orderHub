@@ -100,6 +100,29 @@ async function main() {
 
   console.log("✅ Created sample Taobao products");
 
+  // Create sample end consumer
+  const sampleEndConsumer = await prisma.endConsumer.upsert({
+    where: {
+      email_sourceCustomerId: {
+        email: "customer@test-store.com",
+        sourceCustomerId: testCustomer.id,
+      },
+    },
+    update: {},
+    create: {
+      email: "customer@test-store.com",
+      name: "John Doe",
+      phone: "+1234567890",
+      sourceCustomerId: testCustomer.id,
+      totalOrderCount: 1,
+      totalOrderValue: 59.98,
+      preferredCurrency: "USD",
+      lastOrderDate: new Date(),
+    },
+  });
+
+  console.log("✅ Created sample end consumer:", sampleEndConsumer.email);
+
   // Create sample order for testing
   const sampleOrder = await prisma.order.upsert({
     where: {
@@ -113,7 +136,7 @@ async function main() {
       externalOrderId: "TEST_ORDER_001",
       orderNumber: "ORD-2024-001",
       customerId: testCustomer.id,
-      customerEmail: "customer@test-store.com",
+      endConsumerId: sampleEndConsumer.id,
       status: "PENDING" as const,
       priority: "NORMAL",
       originalTotal: 59.98,

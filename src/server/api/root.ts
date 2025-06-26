@@ -1,8 +1,9 @@
 import { customerRouter } from "@/server/api/routers/customer";
 import { orderRouter } from "@/server/api/routers/order";
+import { userRouter } from "@/server/api/routers/user";
 import { analyticsRouter } from "@/server/api/routers/analytics";
 import { webhookRouter } from "@/server/api/routers/webhook";
-import { userRouter } from "@/server/api/routers/user";
+import { endConsumerRouter } from "@/server/api/routers/endConsumer";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -13,9 +14,10 @@ import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 export const appRouter = createTRPCRouter({
   customer: customerRouter,
   order: orderRouter,
+  user: userRouter,
   analytics: analyticsRouter,
   webhook: webhookRouter,
-  user: userRouter,
+  endConsumer: endConsumerRouter,
 });
 
 // export type definition of API

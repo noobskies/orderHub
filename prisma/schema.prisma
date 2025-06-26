@@ -51,10 +51,38 @@ model Customer {
 
     // Relations
     orders            Order[]
+    endConsumers      EndConsumer[]
     webhookDeliveries WebhookDelivery[]
     webhookSecret     WebhookSecret?
 
     @@map("customers")
+}
+
+// End consumers who place orders through our B2B customers
+model EndConsumer {
+    id    String  @id @default(cuid())
+    email String
+    name  String?
+    phone String?
+
+    // Track which B2B customer they came from
+    sourceCustomerId String
+    sourceCustomer   Customer @relation(fields: [sourceCustomerId], references: [id], onDelete: Cascade)
+
+    // Their order history
+    orders Order[]
+
+    // Additional consumer data from orders
+    lastOrderDate     DateTime?
+    totalOrderCount   Int       @default(0)
+    totalOrderValue   Decimal   @default(0)
+    preferredCurrency String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@unique([email, sourceCustomerId]) // Same email can exist across different B2B customers
+    @@map("end_consumers")
 }
 
 // Orders received from customers
@@ -63,7 +91,10 @@ model Order {
     externalOrderId String // Customer's order ID
     orderNumber     String? // Customer's order number
     customerId      String
-    customerEmail   String?
+
+    // End consumer information
+    endConsumerId String?
+    endConsumer   EndConsumer? @relation(fields: [endConsumerId], references: [id])
 
     // Order status and processing
     status   OrderStatus        @default(PENDING)
@@ -74,7 +105,7 @@ model Order {
     processedTotal Decimal?
     currency       String   @default("USD")
 
-    // Customer information
+    // Customer information (end consumer's addresses)
     shippingAddress Json // Shipping address object
     billingAddress  Json? // Billing address object
 
@@ -95,7 +126,7 @@ model Order {
     customer        Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
     items           OrderItem[]
     processingLog   ProcessingLog[]
-    WebhookDelivery WebhookDelivery[]
+    webhookDelivery WebhookDelivery[]
 
     @@unique([customerId, externalOrderId])
     @@map("orders")

@@ -187,7 +187,8 @@ orderHub/
 ### Core Entities
 
 - **AdminUser**: System administrators who manage customers and orders
-- **Customer**: E-commerce businesses using the processing service
+- **Customer**: E-commerce businesses using the processing service (B2B clients)
+- **EndConsumer**: End consumers who place orders through B2B customers
 - **Order**: Individual orders received from customers
 - **OrderItem**: Items within each order
 - **ProcessingLog**: Audit trail of order processing actions
