@@ -5,40 +5,17 @@ import {
   ClockIcon,
   CheckCircleIcon 
 } from "@heroicons/react/24/outline";
+import { api } from "@/trpc/server";
 
-// TODO: Replace with actual data from tRPC
-const stats = [
-  {
-    name: "Total Orders",
-    value: "0",
-    icon: ShoppingBagIcon,
-    change: "+0%",
-    changeType: "increase" as const,
-  },
-  {
-    name: "Active Customers",
-    value: "0",
-    icon: UsersIcon,
-    change: "+0%",
-    changeType: "increase" as const,
-  },
-  {
-    name: "Pending Orders",
-    value: "0",
-    icon: ClockIcon,
-    change: "0",
-    changeType: "neutral" as const,
-  },
-  {
-    name: "Completed Today",
-    value: "0",
-    icon: CheckCircleIcon,
-    change: "+0%",
-    changeType: "increase" as const,
-  },
-];
+type StatCardProps = {
+  name: string;
+  value: string;
+  icon: React.ComponentType<{ className?: string }>;
+  change: string;
+  changeType: "increase" | "decrease" | "neutral";
+};
 
-function StatCard({ stat }: { stat: typeof stats[0] }) {
+function StatCard({ stat }: { stat: StatCardProps }) {
   return (
     <div className="bg-white overflow-hidden shadow rounded-lg">
       <div className="p-5">
@@ -80,40 +57,139 @@ function StatCard({ stat }: { stat: typeof stats[0] }) {
   );
 }
 
-function DashboardStats() {
-  return (
-    <div>
-      <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-        Overview
-      </h3>
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <StatCard key={stat.name} stat={stat} />
-        ))}
-      </div>
-    </div>
-  );
-}
+async function DashboardStats() {
+  try {
+    const metrics = await api.analytics.getDashboardMetrics({});
+    
+    const stats: StatCardProps[] = [
+      {
+        name: "Total Orders",
+        value: metrics.totalOrders.toString(),
+        icon: ShoppingBagIcon,
+        change: "+0%",
+        changeType: "neutral",
+      },
+      {
+        name: "Active Customers",
+        value: metrics.activeCustomers.toString(),
+        icon: UsersIcon,
+        change: "+0%",
+        changeType: "neutral",
+      },
+      {
+        name: "Pending Orders",
+        value: metrics.pendingOrders.toString(),
+        icon: ClockIcon,
+        change: "0",
+        changeType: "neutral",
+      },
+      {
+        name: "Completed Orders",
+        value: metrics.completedOrders.toString(),
+        icon: CheckCircleIcon,
+        change: "+0%",
+        changeType: "neutral",
+      },
+    ];
 
-function RecentActivity() {
-  return (
-    <div className="bg-white shadow rounded-lg">
-      <div className="px-4 py-5 sm:p-6">
+    return (
+      <div>
         <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-          Recent Activity
+          Overview
         </h3>
-        <div className="text-center py-12">
-          <ShoppingBagIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">
-            No orders yet
-          </h3>
-          <p className="mt-1 text-sm text-gray-500">
-            Orders will appear here once customers start sending them via webhooks.
-          </p>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <StatCard key={stat.name} stat={stat} />
+          ))}
         </div>
       </div>
-    </div>
-  );
+    );
+  } catch (error) {
+    console.error("Failed to load dashboard metrics:", error);
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600">Failed to load dashboard metrics</p>
+      </div>
+    );
+  }
+}
+
+async function RecentActivity() {
+  try {
+    const metrics = await api.analytics.getDashboardMetrics({});
+    
+    if (metrics.recentOrders.length === 0) {
+      return (
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+              Recent Activity
+            </h3>
+            <div className="text-center py-12">
+              <ShoppingBagIcon className="mx-auto h-12 w-12 text-gray-400" />
+              <h3 className="mt-2 text-sm font-medium text-gray-900">
+                No orders yet
+              </h3>
+              <p className="mt-1 text-sm text-gray-500">
+                Orders will appear here once customers start sending them via webhooks.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:p-6">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Recent Activity
+          </h3>
+          <div className="space-y-3">
+            {metrics.recentOrders.map((order) => (
+              <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">
+                    {order.externalOrderId}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {order.customerName} • ${order.originalTotal}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    order.status === "COMPLETED" ? "bg-green-100 text-green-800" :
+                    order.status === "PROCESSING" ? "bg-yellow-100 text-yellow-800" :
+                    order.status === "PENDING" ? "bg-blue-100 text-blue-800" :
+                    "bg-gray-100 text-gray-800"
+                  }`}>
+                    {order.status}
+                  </span>
+                  <p className="text-xs text-gray-500 mt-1">
+                    {new Date(order.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  } catch (error) {
+    console.error("Failed to load recent activity:", error);
+    return (
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:p-6">
+          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Recent Activity
+          </h3>
+          <div className="text-center py-12">
+            <p className="text-red-600">Failed to load recent activity</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default function DashboardPage() {

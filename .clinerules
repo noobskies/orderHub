@@ -1,0 +1,120 @@
+# Order Processing Hub - Cline Rules
+
+## 📋 Documentation-Driven Development
+
+### Always Start with Documentation
+
+- Read through `/docs` directory first to understand current project state
+- Check `docs/TODO.md` for current priorities and completed items
+- Review `docs/README.md` "Verified Working Features" section
+- Understand the project phase and focus areas before coding
+
+### Keep Documentation Current
+
+- Mark completed items as `[x]` in `docs/TODO.md` immediately after implementation
+- Update `docs/README.md` "Verified Working Features" when adding new functionality
+- Update `docs/API.md` when creating new endpoints
+- Documentation should always reflect actual working state, not aspirational state
+
+## 🍰 Bite-Sized Task Approach
+
+### Task Granularity
+
+- Break large features into small, independently valuable tasks
+- Each task should be completable in a focused work session
+- Prefer "Create customer CRUD tRPC router" over "Build customer management system"
+- Focus on one small task at a time until completion
+
+### Priority System
+
+- Use `🔥 Critical` for must-have Phase 1 features
+- Use `⚡ High` for important Phase 1 features
+- Use `📋 Medium` for nice-to-have Phase 1 features
+- Use `🔮 Future` for Phase 2/3 features
+
+## 🔧 Code Quality Standards
+
+### TypeScript & Validation
+
+- Use TypeScript everywhere with proper type annotations
+- Implement Zod schemas for all data validation (API requests, forms, etc.)
+- Use `TRPCError` with proper error codes instead of generic `Error`
+- Validate webhook payloads thoroughly before processing
+
+### Error Handling
+
+- Implement comprehensive error handling in all tRPC procedures
+- Use proper HTTP status codes in webhook endpoints (401, 400, 409, 500)
+- Log errors appropriately (console.error for debugging, processing logs for audit)
+- Provide user-friendly error messages
+
+### Database & Audit
+
+- Create processing log entries for all significant order actions
+- Use proper Prisma relations and include statements
+- Implement soft deletes where appropriate (set isActive: false)
+- Generate cryptographically secure API keys
+
+## 🏗️ Implementation Order
+
+### Backend First Approach
+
+1. **tRPC Routers**: Complete backend API before UI
+2. **Webhook Endpoints**: External integration points
+3. **Dashboard Integration**: Connect UI to real data
+4. **UI Components**: Build forms and interfaces last
+
+### Specific Patterns
+
+- Create complete CRUD operations in tRPC routers
+- Add statistics and analytics endpoints alongside basic CRUD
+- Implement webhook authentication before order processing
+- Use server-side data fetching in dashboard components
+
+## 📊 Progress Tracking
+
+### Honest Status Reporting
+
+- Use `✅` for actually working and tested features
+- Use `🔄` for features currently being implemented
+- Use `⏳` for planned but not started features
+- Never mark something as complete until it's actually working
+
+### Regular Documentation Updates
+
+- Update README.md after each major feature completion
+- Keep TODO.md current with actual progress
+- Document any discovered requirements or changes
+- Maintain accurate project status for team visibility
+
+## 🎯 Phase 1 Focus Areas
+
+### Manual Processing Priority
+
+- Build systems for human-reviewed order processing
+- Focus on admin tools and interfaces
+- Ensure reliable webhook order intake
+- Create comprehensive audit trails
+
+### Core Infrastructure
+
+- Establish solid database schema and relationships
+- Implement secure authentication and API key management
+- Build robust error handling and logging
+- Create type-safe APIs with proper validation
+
+## 🚀 Quality Assurance
+
+### Before Marking Tasks Complete
+
+- Test the functionality actually works
+- Update relevant documentation
+- Ensure error handling is implemented
+- Verify TypeScript compilation without errors
+
+### Code Organization
+
+- Keep related functionality in focused files
+- Use clear, descriptive function and variable names
+- Add comments for business logic and complex operations
+- Follow established project patterns and conventions
