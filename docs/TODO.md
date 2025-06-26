@@ -35,8 +35,8 @@
   - [x] Password reset functionality
 - [x] **Authentication middleware**
   - [x] Protect admin routes
-  - [ ] API route protection
-  - [ ] Role-based access control
+  - [x] API route protection
+  - [x] Role-based access control
 
 ### 👥 Customer Management System
 
@@ -161,7 +161,7 @@
   - [x] Date formatting utilities
   - [x] Currency formatting
   - [x] API key generation (cryptographically secure)
-  - [ ] Webhook signature validation
+  - [x] Webhook signature validation
 
 ### 🧪 Testing & Quality
 

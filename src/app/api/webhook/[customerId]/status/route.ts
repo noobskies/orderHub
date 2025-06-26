@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/server/db";
+import { statusRateLimit } from "@/lib/rate-limit";
 
 // Helper function to authenticate customer API key
 async function authenticateCustomer(customerId: string, apiKey: string) {
@@ -29,6 +30,12 @@ export async function GET(
   { params }: { params: Promise<{ customerId: string }> },
 ) {
   try {
+    // Apply rate limiting
+    const rateLimitResult = await statusRateLimit(request);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+
     const { customerId } = await params;
 
     // Get API key from Authorization header

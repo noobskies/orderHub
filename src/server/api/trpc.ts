@@ -102,6 +102,48 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 });
 
 /**
+ * Rate limiting middleware for API protection
+ */
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
+  // Only apply rate limiting to authenticated users
+  if (!ctx.session?.user) {
+    return next();
+  }
+
+  const userId = ctx.session.user.id;
+  const now = Date.now();
+  const windowMs = 60 * 1000; // 1 minute window
+  const maxRequests = 1000; // Max requests per minute for admin users
+
+  // Clean up old entries
+  for (const [key, value] of rateLimitMap.entries()) {
+    if (now > value.resetTime) {
+      rateLimitMap.delete(key);
+    }
+  }
+
+  const userKey = `${userId}:${Math.floor(now / windowMs)}`;
+  const current = rateLimitMap.get(userKey) ?? {
+    count: 0,
+    resetTime: now + windowMs,
+  };
+
+  if (current.count >= maxRequests) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Rate limit exceeded. Please try again later.",
+    });
+  }
+
+  current.count++;
+  rateLimitMap.set(userKey, current);
+
+  return next();
+});
+
+/**
  * Public (unauthenticated) procedure
  *
  * This is the base piece you use to build new queries and mutations on your tRPC API. It does not
@@ -120,6 +162,7 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  */
 export const protectedProcedure = t.procedure
   .use(timingMiddleware)
+  .use(rateLimitMiddleware)
   .use(({ ctx, next }) => {
     if (!ctx.session?.user) {
       throw new TRPCError({ code: "UNAUTHORIZED" });
@@ -131,3 +174,63 @@ export const protectedProcedure = t.procedure
       },
     });
   });
+
+/**
+ * Admin-only procedure
+ *
+ * This procedure ensures the user is authenticated and has ADMIN or SUPER_ADMIN role.
+ * Use this for operations that require admin privileges.
+ */
+export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  const userRole = ctx.session.user.role;
+
+  if (userRole !== "ADMIN" && userRole !== "SUPER_ADMIN") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Admin access required",
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      session: {
+        ...ctx.session,
+        user: {
+          ...ctx.session.user,
+          role: userRole,
+        },
+      },
+    },
+  });
+});
+
+/**
+ * Super Admin-only procedure
+ *
+ * This procedure ensures the user is authenticated and has SUPER_ADMIN role.
+ * Use this for sensitive operations like user management, system configuration, etc.
+ */
+export const superAdminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  const userRole = ctx.session.user.role;
+
+  if (userRole !== "SUPER_ADMIN") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Super Admin access required",
+    });
+  }
+
+  return next({
+    ctx: {
+      ...ctx,
+      session: {
+        ...ctx.session,
+        user: {
+          ...ctx.session.user,
+          role: userRole,
+        },
+      },
+    },
+  });
+});

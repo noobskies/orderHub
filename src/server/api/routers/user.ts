@@ -2,7 +2,12 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { TRPCError } from "@trpc/server";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  adminProcedure,
+  superAdminProcedure,
+} from "@/server/api/trpc";
 
 // Validation schemas
 const createUserSchema = z.object({
@@ -122,18 +127,10 @@ export const userRouter = createTRPCRouter({
       };
     }),
 
-  // Create new admin user
-  create: protectedProcedure
+  // Create new admin user - Super Admin only
+  create: superAdminProcedure
     .input(createUserSchema)
     .mutation(async ({ ctx, input }) => {
-      // Check if current user has permission to create users
-      if (ctx.session.user.role !== "SUPER_ADMIN") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Only Super Admins can create new users",
-        });
-      }
-
       // Check if email already exists
       const existingUser = await ctx.db.adminUser.findUnique({
         where: { email: input.email },
@@ -168,8 +165,8 @@ export const userRouter = createTRPCRouter({
       return user;
     }),
 
-  // Update user
-  update: protectedProcedure
+  // Update user - Super Admin only (for role changes and user management)
+  update: superAdminProcedure
     .input(updateUserSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, ...updateData } = input;
@@ -183,14 +180,6 @@ export const userRouter = createTRPCRouter({
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "User not found",
-        });
-      }
-
-      // Check permissions for role changes
-      if (updateData.role && ctx.session.user.role !== "SUPER_ADMIN") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Only Super Admins can change user roles",
         });
       }
 
@@ -290,18 +279,10 @@ export const userRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  // Reset password (for Super Admins)
-  resetPassword: protectedProcedure
+  // Reset password - Super Admin only
+  resetPassword: superAdminProcedure
     .input(resetPasswordSchema)
     .mutation(async ({ ctx, input }) => {
-      // Only Super Admins can reset passwords
-      if (ctx.session.user.role !== "SUPER_ADMIN") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Only Super Admins can reset passwords",
-        });
-      }
-
       const { id, newPassword } = input;
 
       // Check if user exists
@@ -327,18 +308,10 @@ export const userRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  // Delete user (soft delete by setting inactive)
-  delete: protectedProcedure
+  // Delete user (soft delete by setting inactive) - Super Admin only
+  delete: superAdminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      // Only Super Admins can delete users
-      if (ctx.session.user.role !== "SUPER_ADMIN") {
-        throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "Only Super Admins can delete users",
-        });
-      }
-
       // Prevent users from deleting themselves
       if (ctx.session.user.id === input.id) {
         throw new TRPCError({

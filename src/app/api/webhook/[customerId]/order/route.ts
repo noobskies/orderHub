@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/server/db";
+import { webhookRateLimit } from "@/lib/rate-limit";
 
 // Validation schema for incoming orders
 const orderSchema = z.object({
@@ -84,6 +85,12 @@ export async function POST(
   { params }: { params: Promise<{ customerId: string }> },
 ) {
   try {
+    // Apply rate limiting
+    const rateLimitResult = await webhookRateLimit(request);
+    if (rateLimitResult) {
+      return rateLimitResult;
+    }
+
     const { customerId } = await params;
 
     // Get API key from Authorization header

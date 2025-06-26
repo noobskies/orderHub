@@ -3,7 +3,12 @@ import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { TRPCError } from "@trpc/server";
 
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  adminProcedure,
+  superAdminProcedure,
+} from "@/server/api/trpc";
 
 // Validation schemas
 const createCustomerSchema = z.object({
@@ -108,8 +113,8 @@ export const customerRouter = createTRPCRouter({
       };
     }),
 
-  // Create new customer
-  create: protectedProcedure
+  // Create new customer - Admin only
+  create: adminProcedure
     .input(createCustomerSchema)
     .mutation(async ({ ctx, input }) => {
       // Check if email already exists
@@ -141,8 +146,8 @@ export const customerRouter = createTRPCRouter({
       };
     }),
 
-  // Update customer
-  update: protectedProcedure
+  // Update customer - Admin only
+  update: adminProcedure
     .input(updateCustomerSchema)
     .mutation(async ({ ctx, input }) => {
       const { id, ...updateData } = input;
@@ -182,8 +187,8 @@ export const customerRouter = createTRPCRouter({
       };
     }),
 
-  // Regenerate API key
-  regenerateApiKey: protectedProcedure
+  // Regenerate API key - Admin only (sensitive security operation)
+  regenerateApiKey: adminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       // Check if customer exists
@@ -215,8 +220,8 @@ export const customerRouter = createTRPCRouter({
       };
     }),
 
-  // Delete customer (soft delete by setting inactive)
-  delete: protectedProcedure
+  // Delete customer (soft delete by setting inactive) - Super Admin only
+  delete: superAdminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ ctx, input }) => {
       // Check if customer exists
