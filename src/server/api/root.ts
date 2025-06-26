@@ -2,6 +2,7 @@ import { customerRouter } from "@/server/api/routers/customer";
 import { orderRouter } from "@/server/api/routers/order";
 import { analyticsRouter } from "@/server/api/routers/analytics";
 import { webhookRouter } from "@/server/api/routers/webhook";
+import { userRouter } from "@/server/api/routers/user";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   order: orderRouter,
   analytics: analyticsRouter,
   webhook: webhookRouter,
+  user: userRouter,
 });
 
 // export type definition of API
