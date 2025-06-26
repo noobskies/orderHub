@@ -347,7 +347,7 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
                       </Avatar>
                       <div>
                         <p className="font-medium">
-                          {order.endConsumer.name || "Anonymous Customer"}
+                          {order.endConsumer.name ?? "Anonymous Customer"}
                         </p>
                         <p className="text-sm text-muted-foreground">{order.endConsumer.email}</p>
                         {order.endConsumer.phone && (

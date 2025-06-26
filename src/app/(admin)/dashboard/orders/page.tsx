@@ -123,7 +123,7 @@ function OrderRow({ order }: { order: Order }) {
             </Avatar>
             <div className="ml-3">
               <div className="text-sm font-medium">
-                {order.endConsumer.name || "Anonymous"}
+                {order.endConsumer.name ?? "Anonymous"}
               </div>
               <div className="text-xs text-muted-foreground">
                 {order.endConsumer.email}
