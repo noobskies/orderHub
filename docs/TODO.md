@@ -55,7 +55,7 @@
   - [x] Customer list page with search/filter
   - [x] Customer detail page
   - [x] Customer creation form
-  - [ ] Customer edit form
+  - [x] Customer edit form
 
 ### 📦 Order Management System
 

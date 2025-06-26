@@ -117,6 +117,7 @@ npm run dev
   - ✅ Customer list page with status indicators
   - ✅ Customer detail page with statistics and API keys
   - ✅ Customer creation form with validation
+  - ✅ Customer edit form with full field updates
   - ✅ API credential display and copy functionality
   - ✅ Recent orders display per customer
 - ✅ **Admin User Management UI**: Complete user management system
