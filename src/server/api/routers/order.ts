@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import type { Prisma } from "@prisma/client";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { webhookService } from "@/server/services/webhook";
@@ -54,7 +55,7 @@ const processOrderSchema = z.object({
           "OUT_OF_STOCK",
         ]),
         notes: z.string().optional(),
-        taobaoData: z.record(z.any()).optional(),
+        taobaoData: z.record(z.string(), z.unknown()).optional(),
       }),
     )
     .optional(),
@@ -65,7 +66,20 @@ export const orderRouter = createTRPCRouter({
   getAll: protectedProcedure
     .input(orderFilterSchema)
     .query(async ({ ctx, input }) => {
-      const where: any = {};
+      const where: {
+        customerId?: string;
+        status?:
+          | "PENDING"
+          | "PROCESSING"
+          | "COMPLETED"
+          | "FAILED"
+          | "CANCELLED"
+          | "ON_HOLD";
+        createdAt?: {
+          gte?: Date;
+          lte?: Date;
+        };
+      } = {};
 
       if (input.customerId) {
         where.customerId = input.customerId;
@@ -285,7 +299,7 @@ export const orderRouter = createTRPCRouter({
               processedPrice: item.processedPrice,
               status: item.status,
               notes: item.notes,
-              taobaoData: item.taobaoData,
+              taobaoData: item.taobaoData as Prisma.InputJsonValue,
             },
           });
         }
@@ -368,7 +382,13 @@ export const orderRouter = createTRPCRouter({
       }),
     )
     .query(async ({ ctx, input }) => {
-      const where: any = {};
+      const where: {
+        customerId?: string;
+        createdAt?: {
+          gte?: Date;
+          lte?: Date;
+        };
+      } = {};
 
       if (input.customerId) {
         where.customerId = input.customerId;

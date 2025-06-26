@@ -6,7 +6,6 @@ import {
   PencilIcon,
   KeyIcon,
   EyeIcon,
-  EyeSlashIcon,
   CheckIcon
 } from "@heroicons/react/24/outline";
 import { api } from "@/trpc/server";
@@ -53,7 +52,7 @@ function CustomerStats({ customerId }: { customerId: string }) {
   return (
     <Suspense fallback={
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        {[...Array(4)].map((_, i) => (
+        {Array.from({ length: 4 }, (_, i) => (
           <div key={i} className="bg-white p-6 rounded-lg shadow animate-pulse">
             <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
             <div className="h-8 bg-gray-200 rounded w-3/4"></div>
@@ -328,7 +327,7 @@ export default async function CustomerDetailPage({ params }: CustomerDetailProps
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            {[...Array(4)].map((_, i) => (
+            {Array.from({ length: 4 }, (_, i) => (
               <div key={i} className="h-24 bg-gray-200 rounded"></div>
             ))}
           </div>

@@ -55,7 +55,7 @@ export const authConfig = {
             where: { email },
           });
 
-          if (!adminUser || !adminUser.isActive) {
+          if (!adminUser?.isActive) {
             return null;
           }
 

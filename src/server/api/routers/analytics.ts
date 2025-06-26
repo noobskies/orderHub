@@ -126,10 +126,10 @@ export const analyticsRouter = createTRPCRouter({
           };
         }
 
-        ordersByDate[dateKey]!.totalOrders++;
+        ordersByDate[dateKey].totalOrders++;
         if (order.status === "COMPLETED") {
-          ordersByDate[dateKey]!.completedOrders++;
-          ordersByDate[dateKey]!.revenue += Number(order.processedTotal ?? 0);
+          ordersByDate[dateKey].completedOrders++;
+          ordersByDate[dateKey].revenue += Number(order.processedTotal ?? 0);
         }
       });
 

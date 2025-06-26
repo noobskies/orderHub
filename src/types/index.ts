@@ -276,9 +276,7 @@ export interface PaginatedResponse<T> {
 }
 
 // Form validation types
-export interface FormErrors {
-  [key: string]: string | undefined;
-}
+export type FormErrors = Record<string, string | undefined>;
 
 export interface FormState<T> {
   data: T;
