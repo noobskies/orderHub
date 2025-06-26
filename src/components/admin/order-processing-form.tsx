@@ -9,7 +9,8 @@ import {
   PlayIcon, 
   CheckCircleIcon,
   XCircleIcon,
-  PauseIcon
+  PauseIcon,
+  ArrowRightIcon
 } from "@heroicons/react/24/outline";
 import { api } from "@/trpc/react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -103,6 +104,17 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
     },
   });
 
+  const resumeFromHoldMutation = api.order.resumeFromHold.useMutation({
+    onSuccess: () => {
+      setHasStarted(true);
+      toast.success("Order resumed from hold");
+      router.refresh();
+    },
+    onError: () => {
+      toast.error("Failed to resume order");
+    },
+  });
+
   // Initialize form with current order data
   const form = useForm<OrderProcessingFormData>({
     resolver: zodResolver(orderProcessingSchema),
@@ -140,6 +152,19 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
       await updateStatusMutation.mutateAsync({
         id: order.id,
         status: status as "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED" | "CANCELLED" | "ON_HOLD",
+        notes,
+      });
+    } catch {
+      // Error handled in mutation
+    }
+  }
+
+  async function handleResumeFromHold(notes?: string) {
+    if (resumeFromHoldMutation.isPending) return;
+    
+    try {
+      await resumeFromHoldMutation.mutateAsync({ 
+        id: order.id,
         notes,
       });
     } catch {
@@ -196,6 +221,38 @@ export function OrderProcessingForm({ order, autoStart }: OrderProcessingFormPro
               <>
                 <PlayIcon className="h-4 w-4 mr-2" />
                 Start Processing Order
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (order.status === "ON_HOLD") {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <ArrowRightIcon className="h-5 w-5 mr-2" />
+            Resume from Hold
+          </CardTitle>
+          <CardDescription>
+            This order is currently on hold. Click the button below to resume processing.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            onClick={() => handleResumeFromHold("Order resumed from hold")}
+            disabled={resumeFromHoldMutation.isPending}
+            className="w-full"
+          >
+            {resumeFromHoldMutation.isPending ? (
+              "Resuming..."
+            ) : (
+              <>
+                <ArrowRightIcon className="h-4 w-4 mr-2" />
+                Resume Processing Order
               </>
             )}
           </Button>

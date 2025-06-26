@@ -226,7 +226,7 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
             </Card>
 
             {/* Order Processing Form */}
-            {(order.status === "PENDING" || order.status === "PROCESSING") && (
+            {(order.status === "PENDING" || order.status === "PROCESSING" || order.status === "ON_HOLD") && (
               <OrderProcessingForm 
                 order={{
                   ...order,

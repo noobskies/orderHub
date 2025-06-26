@@ -98,6 +98,7 @@
   - [x] FAILED - processing failed
   - [x] CANCELLED - cancelled by customer
   - [x] ON_HOLD - temporarily paused
+  - [x] Resume from hold functionality
 
 ### 🏪 Taobao-Specific Features
 

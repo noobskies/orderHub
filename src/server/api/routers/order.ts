@@ -496,4 +496,69 @@ export const orderRouter = createTRPCRouter({
 
       return updatedOrder;
     }),
+
+  // Resume order from hold
+  resumeFromHold: protectedProcedure
+    .input(z.object({ id: z.string(), notes: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      const order = await ctx.db.order.findUnique({
+        where: { id: input.id },
+      });
+
+      if (!order) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Order not found",
+        });
+      }
+
+      if (order.status !== "ON_HOLD") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Order is not on hold",
+        });
+      }
+
+      const updatedOrder = await ctx.db.order.update({
+        where: { id: input.id },
+        data: {
+          status: "PROCESSING",
+          processingNotes: input.notes,
+        },
+      });
+
+      // Create processing log entry
+      await ctx.db.processingLog.create({
+        data: {
+          orderId: input.id,
+          adminUserId: ctx.session.user.id,
+          action: "RESUMED_FROM_HOLD",
+          status: "PROCESSING",
+          notes: input.notes ?? "Order resumed from hold",
+          metadata: {
+            previousStatus: "ON_HOLD",
+            newStatus: "PROCESSING",
+            resumedAt: new Date().toISOString(),
+            adminUser: ctx.session.user.email,
+          },
+        },
+      });
+
+      // Trigger webhook for status change
+      try {
+        await webhookService.deliverWebhook(
+          order.customerId,
+          input.id,
+          "order.status_changed",
+        );
+      } catch (webhookError) {
+        // Log webhook error but don't fail the order resume
+        console.error(
+          "Failed to deliver webhook for order resume:",
+          webhookError,
+        );
+      }
+
+      return updatedOrder;
+    }),
 });

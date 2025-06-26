@@ -272,6 +272,7 @@ enum ProcessingAction {
     ORDER_COMPLETED
     ORDER_FAILED
     ORDER_CANCELLED
+    RESUMED_FROM_HOLD
 }
 
 enum WebhookStatus {
