@@ -6,6 +6,11 @@ import {
   CheckCircleIcon 
 } from "@heroicons/react/24/outline";
 import { api } from "@/trpc/server";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
 
 type StatCardProps = {
   name: string;
@@ -17,43 +22,31 @@ type StatCardProps = {
 
 function StatCard({ stat }: { stat: StatCardProps }) {
   return (
-    <div className="bg-white overflow-hidden shadow rounded-lg">
-      <div className="p-5">
-        <div className="flex items-center">
-          <div className="flex-shrink-0">
-            <stat.icon className="h-6 w-6 text-gray-400" aria-hidden="true" />
-          </div>
-          <div className="ml-5 w-0 flex-1">
-            <dl>
-              <dt className="text-sm font-medium text-gray-500 truncate">
-                {stat.name}
-              </dt>
-              <dd>
-                <div className="text-lg font-medium text-gray-900">
-                  {stat.value}
-                </div>
-              </dd>
-            </dl>
-          </div>
-        </div>
-      </div>
-      <div className="bg-gray-50 px-5 py-3">
-        <div className="text-sm">
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium text-muted-foreground">
+          {stat.name}
+        </CardTitle>
+        <stat.icon className="h-4 w-4 text-muted-foreground" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{stat.value}</div>
+        <p className="text-xs text-muted-foreground">
           <span
             className={`font-medium ${
               stat.changeType === "increase"
                 ? "text-green-600"
                 : stat.changeType === "decrease"
                 ? "text-red-600"
-                : "text-gray-600"
+                : "text-muted-foreground"
             }`}
           >
             {stat.change}
           </span>
-          <span className="text-gray-500"> from last month</span>
-        </div>
-      </div>
-    </div>
+          {" from last month"}
+        </p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -120,74 +113,76 @@ async function RecentActivity() {
     
     if (metrics.recentOrders.length === 0) {
       return (
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Recent Activity
-            </h3>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
             <div className="text-center py-12">
-              <ShoppingBagIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">
+              <ShoppingBagIcon className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-2 text-sm font-medium">
                 No orders yet
               </h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Orders will appear here once customers start sending them via webhooks.
               </p>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       );
     }
 
     return (
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-            Recent Activity
-          </h3>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-3">
             {metrics.recentOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div key={order.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">
+                  <p className="text-sm font-medium">
                     {order.externalOrderId}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     {order.customerName} • ${order.originalTotal.toString()}
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    order.status === "COMPLETED" ? "bg-green-100 text-green-800" :
-                    order.status === "PROCESSING" ? "bg-yellow-100 text-yellow-800" :
-                    order.status === "PENDING" ? "bg-blue-100 text-blue-800" :
-                    "bg-gray-100 text-gray-800"
-                  }`}>
+                  <Badge 
+                    variant={
+                      order.status === "COMPLETED" ? "default" :
+                      order.status === "PROCESSING" ? "secondary" :
+                      order.status === "PENDING" ? "outline" :
+                      "secondary"
+                    }
+                  >
                     {order.status}
-                  </span>
-                  <p className="text-xs text-gray-500 mt-1">
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-1">
                     {new Date(order.createdAt).toLocaleDateString()}
                   </p>
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   } catch (error) {
     console.error("Failed to load recent activity:", error);
     return (
-      <div className="bg-white shadow rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-            Recent Activity
-          </h3>
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Activity</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="text-center py-12">
-            <p className="text-red-600">Failed to load recent activity</p>
+            <p className="text-destructive">Failed to load recent activity</p>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 }
@@ -202,42 +197,84 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <Suspense fallback={<div>Loading stats...</div>}>
+      <Suspense fallback={
+        <div>
+          <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+            Overview
+          </h3>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-4 w-4" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-8 w-16 mb-2" />
+                  <Skeleton className="h-3 w-32" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      }>
         <DashboardStats />
       </Suspense>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <Suspense fallback={<div>Loading activity...</div>}>
+        <Suspense fallback={
+          <Card>
+            <CardHeader>
+              <Skeleton className="h-6 w-32" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                    <div className="text-right space-y-2">
+                      <Skeleton className="h-5 w-16" />
+                      <Skeleton className="h-3 w-12" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        }>
           <RecentActivity />
         </Suspense>
         
-        <div className="bg-white shadow rounded-lg">
-          <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
-              Quick Actions
-            </h3>
+        <Card>
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>
+              Common tasks and shortcuts
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-3">
-              <a
-                href="/dashboard/customers/new"
-                className="block w-full bg-blue-600 text-white text-center px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-              >
-                Add New Customer
-              </a>
-              <a
-                href="/dashboard/orders"
-                className="block w-full bg-gray-100 text-gray-900 text-center px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
-              >
-                View All Orders
-              </a>
-              <a
-                href="/dashboard/users/new"
-                className="block w-full bg-gray-100 text-gray-900 text-center px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
-              >
-                Add Admin User
-              </a>
+              <Button asChild className="w-full">
+                <Link href="/dashboard/customers/new">
+                  Add New Customer
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/dashboard/orders">
+                  View All Orders
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="w-full">
+                <Link href="/dashboard/users/new">
+                  Add Admin User
+                </Link>
+              </Button>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

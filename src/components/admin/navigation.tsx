@@ -12,6 +12,10 @@ import {
   ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: HomeIcon },
@@ -70,33 +74,37 @@ export function AdminNavigation({ user }: AdminNavigationProps) {
               </ul>
             </li>
             <li className="mt-auto">
-              <div className="flex items-center gap-x-4 px-2 py-3 text-sm font-semibold leading-6 text-gray-900">
-                <div className="h-8 w-8 rounded-full bg-gray-50 flex items-center justify-center">
-                  {user.image ? (
-                    <img
-                      className="h-8 w-8 rounded-full"
-                      src={user.image}
-                      alt=""
-                    />
-                  ) : (
-                    <span className="text-sm font-medium text-gray-700">
-                      {user.name?.charAt(0) ?? user.email?.charAt(0) ?? "U"}
-                    </span>
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">
+              <Separator className="mb-4" />
+              <div className="flex items-center gap-x-4 px-2 py-3">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={user.image ?? undefined} alt={user.name ?? "User"} />
+                  <AvatarFallback className="text-sm font-medium">
+                    {user.name?.charAt(0) ?? user.email?.charAt(0) ?? "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">
                     {user.name ?? "Admin User"}
                   </p>
-                  <p className="text-xs text-gray-500">{user.email}</p>
+                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
                 </div>
-                <button
-                  onClick={() => signOut()}
-                  className="text-gray-400 hover:text-gray-600"
-                  title="Sign out"
-                >
-                  <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                </button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={() => signOut()}
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-gray-600"
+                      >
+                        <ArrowRightOnRectangleIcon className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Sign out</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </li>
           </ul>
