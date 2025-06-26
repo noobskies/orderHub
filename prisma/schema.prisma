@@ -7,68 +7,220 @@ generator client {
 
 datasource db {
     provider = "postgresql"
-    // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-    // Further reading:
-    // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-    // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
     url      = env("DATABASE_URL")
 }
 
-model Post {
-    id        Int      @id @default(autoincrement())
-    name      String
+// Admin Users who manage the system
+model AdminUser {
+    id        String   @id @default(cuid())
+    email     String   @unique
+    name      String?
+    password  String // Hashed password
+    role      UserRole @default(ADMIN)
+    isActive  Boolean  @default(true)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    createdBy   User   @relation(fields: [createdById], references: [id])
-    createdById String
+    // Relations
+    processedOrders ProcessingLog[]
 
-    @@index([name])
+    @@map("admin_users")
 }
 
-// Necessary for Next auth
-model Account {
-    id                       String  @id @default(cuid())
-    userId                   String
-    type                     String
-    provider                 String
-    providerAccountId        String
-    refresh_token            String? // @db.Text
-    access_token             String? // @db.Text
-    expires_at               Int?
-    token_type               String?
-    scope                    String?
-    id_token                 String? // @db.Text
-    session_state            String?
-    user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-    refresh_token_expires_in Int?
+// E-commerce customers who send orders
+model Customer {
+    id         String  @id @default(cuid())
+    name       String
+    email      String  @unique
+    apiKey     String  @unique
+    apiSecret  String // Hashed API secret
+    webhookUrl String
+    isActive   Boolean @default(true)
 
-    @@unique([provider, providerAccountId])
+    // Customer settings
+    currency           String             @default("USD")
+    timezone           String             @default("UTC")
+    processingPriority ProcessingPriority @default(NORMAL)
+
+    // Notification preferences
+    emailNotifications   Boolean @default(true)
+    webhookNotifications Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    orders Order[]
+
+    @@map("customers")
 }
 
-model Session {
-    id           String   @id @default(cuid())
-    sessionToken String   @unique
-    userId       String
-    expires      DateTime
-    user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// Orders received from customers
+model Order {
+    id              String  @id @default(cuid())
+    externalOrderId String // Customer's order ID
+    orderNumber     String? // Customer's order number
+    customerId      String
+    customerEmail   String?
+
+    // Order status and processing
+    status   OrderStatus        @default(PENDING)
+    priority ProcessingPriority @default(NORMAL)
+
+    // Financial information
+    originalTotal  Decimal
+    processedTotal Decimal?
+    currency       String   @default("USD")
+
+    // Customer information
+    shippingAddress Json // Shipping address object
+    billingAddress  Json? // Billing address object
+
+    // Promo/discount information
+    promoCode      String?
+    discountAmount Decimal?
+
+    // Processing information
+    processingNotes         String?
+    estimatedProcessingTime String?
+
+    // Timestamps
+    createdAt   DateTime  @default(now())
+    updatedAt   DateTime  @updatedAt
+    processedAt DateTime?
+
+    // Relations
+    customer      Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    items         OrderItem[]
+    processingLog ProcessingLog[]
+
+    @@unique([customerId, externalOrderId])
+    @@map("orders")
 }
 
-model User {
-    id            String    @id @default(cuid())
-    name          String?
-    email         String?   @unique
-    emailVerified DateTime?
-    image         String?
-    accounts      Account[]
-    sessions      Session[]
-    posts         Post[]
+// Individual items within orders
+model OrderItem {
+    id      String @id @default(cuid())
+    orderId String
+
+    // Product information
+    productId      String
+    name           String
+    originalPrice  Decimal
+    processedPrice Decimal?
+    quantity       Int
+
+    // Product options/variations
+    options Json? // Size, color, etc.
+
+    // Seller information
+    sellerId   String?
+    sellerName String?
+
+    // Taobao-specific information
+    taobaoUrl  String?
+    taobaoData Json? // Taobao product metadata
+
+    // Item status
+    status ItemStatus @default(PENDING)
+    notes  String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    // Relations
+    order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    @@map("order_items")
 }
 
-model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+// Processing log for audit trail
+model ProcessingLog {
+    id          String  @id @default(cuid())
+    orderId     String
+    adminUserId String?
 
-    @@unique([identifier, token])
+    // Log details
+    action   ProcessingAction
+    status   OrderStatus?
+    notes    String?
+    metadata Json? // Additional processing data
+
+    createdAt DateTime @default(now())
+
+    // Relations
+    order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    adminUser AdminUser? @relation(fields: [adminUserId], references: [id], onDelete: SetNull)
+
+    @@map("processing_logs")
+}
+
+// Taobao-specific product data
+model TaobaoProduct {
+    id           String @id @default(cuid())
+    taobaoItemId String @unique
+    url          String
+
+    // Product details
+    title        String
+    price        Decimal?
+    currency     String   @default("CNY")
+    availability String? // IN_STOCK, OUT_OF_STOCK, etc.
+
+    // Product metadata
+    images         Json? // Array of image URLs
+    specifications Json? // Product specs
+    variations     Json? // Size, color options
+
+    // Verification status
+    verified    Boolean  @default(false)
+    lastChecked DateTime @default(now())
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("taobao_products")
+}
+
+// Enums
+enum UserRole {
+    ADMIN
+    SUPER_ADMIN
+}
+
+enum ProcessingPriority {
+    LOW
+    NORMAL
+    HIGH
+    URGENT
+}
+
+enum OrderStatus {
+    PENDING // Just received
+    PROCESSING // Being worked on
+    COMPLETED // Successfully processed
+    FAILED // Processing failed
+    CANCELLED // Cancelled by customer
+    ON_HOLD // Temporarily paused
+}
+
+enum ItemStatus {
+    PENDING // Not yet processed
+    VERIFIED // Product verified
+    PROCESSING // Being processed
+    COMPLETED // Successfully processed
+    FAILED // Processing failed
+    OUT_OF_STOCK // Product unavailable
+}
+
+enum ProcessingAction {
+    ORDER_RECEIVED
+    PROCESSING_STARTED
+    ITEM_VERIFIED
+    PRICE_UPDATED
+    STATUS_CHANGED
+    NOTES_ADDED
+    ORDER_COMPLETED
+    ORDER_FAILED
+    ORDER_CANCELLED
 }
