@@ -50,10 +50,10 @@
   - [x] Webhook URL configuration
   - [x] Customer-specific settings
   - [x] Contact information management
-- [ ] **Customer dashboard UI**
-  - [ ] Customer list page with search/filter
-  - [ ] Customer detail page
-  - [ ] Customer creation form
+- [x] **Customer dashboard UI**
+  - [x] Customer list page with search/filter
+  - [x] Customer detail page
+  - [x] Customer creation form
   - [ ] Customer edit form
 
 ### 📦 Order Management System

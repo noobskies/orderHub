@@ -153,7 +153,7 @@ async function RecentActivity() {
                     {order.externalOrderId}
                   </p>
                   <p className="text-sm text-gray-500">
-                    {order.customerName} • ${order.originalTotal}
+                    {order.customerName} • ${order.originalTotal.toString()}
                   </p>
                 </div>
                 <div className="text-right">
