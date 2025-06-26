@@ -229,13 +229,20 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
             {(order.status === "PENDING" || order.status === "PROCESSING" || order.status === "ON_HOLD") && (
               <OrderProcessingForm 
                 order={{
-                  ...order,
+                  id: order.id,
+                  status: order.status,
                   originalTotal: Number(order.originalTotal),
                   processedTotal: order.processedTotal ? Number(order.processedTotal) : null,
+                  processingNotes: order.processingNotes,
+                  currency: order.currency,
                   items: order.items.map(item => ({
-                    ...item,
+                    id: item.id,
+                    name: item.name,
                     originalPrice: Number(item.originalPrice),
                     processedPrice: item.processedPrice ? Number(item.processedPrice) : null,
+                    quantity: item.quantity,
+                    status: item.status,
+                    notes: item.notes,
                   }))
                 }} 
                 autoStart={autoStart} 

@@ -4,6 +4,7 @@ import { userRouter } from "@/server/api/routers/user";
 import { analyticsRouter } from "@/server/api/routers/analytics";
 import { webhookRouter } from "@/server/api/routers/webhook";
 import { endConsumerRouter } from "@/server/api/routers/endConsumer";
+import { taobaoRouter } from "@/server/api/routers/taobao";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -18,6 +19,7 @@ export const appRouter = createTRPCRouter({
   analytics: analyticsRouter,
   webhook: webhookRouter,
   endConsumer: endConsumerRouter,
+  taobao: taobaoRouter,
 });
 
 // export type definition of API
