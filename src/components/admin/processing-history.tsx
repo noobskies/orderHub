@@ -243,7 +243,7 @@ export function ProcessingHistory({ orderId }: ProcessingHistoryProps) {
                   </p>
                 )}
                 
-                {entry.metadata && typeof entry.metadata === 'object' && entry.metadata !== null && Object.keys(entry.metadata).length > 0 && (
+                {entry.metadata && typeof entry.metadata === 'object' && entry.metadata !== null && Object.keys(entry.metadata).length > 0 ? (
                   <div className="mt-2 p-2 bg-muted rounded text-xs">
                     <details>
                       <summary className="cursor-pointer text-muted-foreground">
@@ -254,7 +254,7 @@ export function ProcessingHistory({ orderId }: ProcessingHistoryProps) {
                       </pre>
                     </details>
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           ))}

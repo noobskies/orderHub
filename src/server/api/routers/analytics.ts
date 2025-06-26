@@ -116,7 +116,7 @@ export const analyticsRouter = createTRPCRouter({
       > = {};
 
       orders.forEach((order) => {
-        const dateKey = order.createdAt.toISOString().split("T")[0];
+        const dateKey = order.createdAt.toISOString().split("T")[0]!;
         if (!ordersByDate[dateKey]) {
           ordersByDate[dateKey] = {
             date: dateKey,
@@ -126,10 +126,10 @@ export const analyticsRouter = createTRPCRouter({
           };
         }
 
-        ordersByDate[dateKey].totalOrders++;
+        ordersByDate[dateKey]!.totalOrders++;
         if (order.status === "COMPLETED") {
-          ordersByDate[dateKey].completedOrders++;
-          ordersByDate[dateKey].revenue += Number(order.processedTotal ?? 0);
+          ordersByDate[dateKey]!.completedOrders++;
+          ordersByDate[dateKey]!.revenue += Number(order.processedTotal ?? 0);
         }
       });
 
@@ -234,9 +234,9 @@ export const analyticsRouter = createTRPCRouter({
 
       const medianProcessingTime =
         processingTimes.length > 0
-          ? processingTimes.sort((a, b) => a - b)[
+          ? (processingTimes.sort((a, b) => a - b)[
               Math.floor(processingTimes.length / 2)
-            ]
+            ] ?? 0)
           : 0;
 
       return {

@@ -1,5 +1,5 @@
 // Re-export Prisma types for convenience
-export type {
+import type {
   AdminUser,
   Customer,
   Order,
@@ -12,6 +12,20 @@ export type {
   ItemStatus,
   ProcessingAction,
 } from "@prisma/client";
+
+export type {
+  AdminUser,
+  Customer,
+  Order,
+  OrderItem,
+  ProcessingLog,
+  TaobaoProduct,
+  UserRole,
+  ProcessingPriority,
+  OrderStatus,
+  ItemStatus,
+  ProcessingAction,
+};
 
 // Extended types for API responses
 export interface CustomerWithStats extends Customer {
