@@ -78,10 +78,10 @@ async function authenticateCustomer(customerId: string, apiKey: string) {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { customerId: string } },
+  { params }: { params: Promise<{ customerId: string }> },
 ) {
   try {
-    const { customerId } = params;
+    const { customerId } = await params;
 
     // Get API key from Authorization header
     const authHeader = request.headers.get("authorization");

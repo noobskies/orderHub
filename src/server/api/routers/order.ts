@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { webhookService } from "@/server/services/webhook";
 
 // Validation schemas
 const orderFilterSchema = z.object({
@@ -214,6 +215,32 @@ export const orderRouter = createTRPCRouter({
         },
       });
 
+      // Trigger webhook for status changes
+      try {
+        let eventType:
+          | "order.completed"
+          | "order.failed"
+          | "order.status_changed" = "order.status_changed";
+
+        if (status === "COMPLETED") {
+          eventType = "order.completed";
+        } else if (status === "FAILED") {
+          eventType = "order.failed";
+        }
+
+        await webhookService.deliverWebhook(
+          existingOrder.customerId,
+          id,
+          eventType,
+        );
+      } catch (webhookError) {
+        // Log webhook error but don't fail the order update
+        console.error(
+          "Failed to deliver webhook for order status change:",
+          webhookError,
+        );
+      }
+
       return updatedOrder;
     }),
 
@@ -280,6 +307,21 @@ export const orderRouter = createTRPCRouter({
           },
         },
       });
+
+      // Trigger webhook for order completion
+      try {
+        await webhookService.deliverWebhook(
+          existingOrder.customerId,
+          id,
+          "order.completed",
+        );
+      } catch (webhookError) {
+        // Log webhook error but don't fail the order processing
+        console.error(
+          "Failed to deliver webhook for order completion:",
+          webhookError,
+        );
+      }
 
       return updatedOrder;
     }),

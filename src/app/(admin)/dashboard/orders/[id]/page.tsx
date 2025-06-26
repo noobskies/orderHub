@@ -25,12 +25,12 @@ import { OrderProcessingForm } from "@/components/admin/order-processing-form";
 import { ProcessingHistory } from "@/components/admin/processing-history";
 
 interface OrderPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
-  searchParams: {
+  }>;
+  searchParams: Promise<{
     action?: string;
-  };
+  }>;
 }
 
 function getStatusIcon(status: string) {
@@ -227,7 +227,19 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
 
             {/* Order Processing Form */}
             {(order.status === "PENDING" || order.status === "PROCESSING") && (
-              <OrderProcessingForm order={order} autoStart={autoStart} />
+              <OrderProcessingForm 
+                order={{
+                  ...order,
+                  originalTotal: Number(order.originalTotal),
+                  processedTotal: order.processedTotal ? Number(order.processedTotal) : null,
+                  items: order.items.map(item => ({
+                    ...item,
+                    originalPrice: Number(item.originalPrice),
+                    processedPrice: item.processedPrice ? Number(item.processedPrice) : null,
+                  }))
+                }} 
+                autoStart={autoStart} 
+              />
             )}
 
             {/* Processing History */}
@@ -376,8 +388,10 @@ async function OrderDetails({ orderId, autoStart }: { orderId: string; autoStart
   }
 }
 
-export default function OrderPage({ params, searchParams }: OrderPageProps) {
-  const autoStart = searchParams.action === "start";
+export default async function OrderPage({ params, searchParams }: OrderPageProps) {
+  const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
+  const autoStart = resolvedSearchParams.action === "start";
 
   return (
     <Suspense fallback={
@@ -434,7 +448,7 @@ export default function OrderPage({ params, searchParams }: OrderPageProps) {
         </div>
       </div>
     }>
-      <OrderDetails orderId={params.id} autoStart={autoStart} />
+      <OrderDetails orderId={resolvedParams.id} autoStart={autoStart} />
     </Suspense>
   );
 }

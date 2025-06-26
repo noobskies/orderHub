@@ -50,7 +50,9 @@ model Customer {
     updatedAt DateTime @updatedAt
 
     // Relations
-    orders Order[]
+    orders            Order[]
+    webhookDeliveries WebhookDelivery[]
+    webhookSecret     WebhookSecret?
 
     @@map("customers")
 }
@@ -90,9 +92,10 @@ model Order {
     processedAt DateTime?
 
     // Relations
-    customer      Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
-    items         OrderItem[]
-    processingLog ProcessingLog[]
+    customer        Customer          @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    items           OrderItem[]
+    processingLog   ProcessingLog[]
+    WebhookDelivery WebhookDelivery[]
 
     @@unique([customerId, externalOrderId])
     @@map("orders")
@@ -182,6 +185,52 @@ model TaobaoProduct {
     @@map("taobao_products")
 }
 
+// Webhook delivery tracking
+model WebhookDelivery {
+    id         String  @id @default(cuid())
+    customerId String
+    orderId    String?
+
+    // Webhook details
+    eventType  String // 'order.completed', 'order.failed', 'order.status_changed'
+    webhookUrl String
+    payload    Json
+    signature  String
+
+    // Delivery status
+    status       WebhookStatus @default(PENDING)
+    httpStatus   Int?
+    responseBody String?
+    errorMessage String?
+
+    // Retry logic
+    attemptCount Int       @default(0)
+    maxRetries   Int       @default(20)
+    nextRetryAt  DateTime?
+
+    // Timestamps
+    createdAt   DateTime  @default(now())
+    completedAt DateTime?
+
+    // Relations
+    customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+    order    Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+    @@map("webhook_deliveries")
+}
+
+// Customer webhook secrets for HMAC signing
+model WebhookSecret {
+    customerId String   @id
+    secret     String
+    createdAt  DateTime @default(now())
+
+    // Relations
+    customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+
+    @@map("webhook_secrets")
+}
+
 // Enums
 enum UserRole {
     ADMIN
@@ -223,4 +272,12 @@ enum ProcessingAction {
     ORDER_COMPLETED
     ORDER_FAILED
     ORDER_CANCELLED
+}
+
+enum WebhookStatus {
+    PENDING // Waiting to be sent
+    SUCCESS // Successfully delivered
+    FAILED // Failed to deliver
+    RETRYING // Currently retrying
+    ABANDONED // Max retries exceeded
 }

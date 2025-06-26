@@ -145,7 +145,7 @@ Authorization: Bearer {customer_api_key}
 
 ### Webhook Callbacks (Outgoing)
 
-When orders are processed, results are sent back to customer webhook URLs.
+When orders are processed, results are sent back to customer webhook URLs automatically.
 
 **POST** `{customer_webhook_url}`
 
@@ -153,13 +153,15 @@ When orders are processed, results are sent back to customer webhook URLs.
 
 ```
 Content-Type: application/json
-X-Webhook-Signature: {hmac_signature}
+X-Webhook-Signature: sha256={hmac_signature}
+User-Agent: OrderHub-Webhook/1.0.0
 ```
 
 **Payload:**
 
 ```json
 {
+  "event": "order.completed",
   "orderId": "ext_order_123",
   "internalOrderId": "ord_internal_456",
   "status": "COMPLETED",
@@ -167,8 +169,7 @@ X-Webhook-Signature: {hmac_signature}
   "pricing": {
     "originalTotal": 59.98,
     "processedTotal": 75.5,
-    "processingFee": 5.0,
-    "shippingCost": 10.52,
+    "processingFee": 15.52,
     "notes": "Manual processing completed"
   },
   "items": [
@@ -177,17 +178,35 @@ X-Webhook-Signature: {hmac_signature}
       "originalPrice": 29.99,
       "processedPrice": 32.5,
       "quantity": 2,
-      "status": "VERIFIED",
+      "status": "COMPLETED",
       "taobaoData": {
         "verified": true,
-        "actualPrice": 28.5,
+        "actualPrice": 32.5,
         "availability": "IN_STOCK"
       }
     }
   ],
-  "processingNotes": "All items verified on Taobao. Prices updated based on current rates."
+  "processingNotes": "All items verified on Taobao. Prices updated based on current rates.",
+  "metadata": {
+    "webhookId": "wh_abc123def456",
+    "timestamp": "2024-01-15T12:30:00Z",
+    "version": "1.0.0"
+  }
 }
 ```
+
+**Event Types:**
+
+- `order.completed` - Order processing completed successfully
+- `order.failed` - Order processing failed
+- `order.status_changed` - Order status changed (for other status updates)
+
+**Webhook Delivery:**
+
+- Automatic retry with exponential backoff (1s, 2s, 4s, 8s, 16s, 32s, then 60s)
+- Maximum 20 retry attempts
+- 30-second timeout per request
+- HMAC-SHA256 signature verification using customer webhook secret
 
 ### Error Codes
 
@@ -323,6 +342,59 @@ analytics.getCustomerMetrics({
 analytics.getProcessingMetrics({
   dateFrom: Date
   dateTo: Date
+})
+```
+
+#### Webhook Router
+
+```typescript
+// Test webhook endpoint for a customer
+webhook.testEndpoint({
+  customerId: string
+})
+
+// Manually trigger webhook delivery
+webhook.deliverWebhook({
+  customerId: string
+  orderId: string
+  eventType: "order.completed" | "order.failed" | "order.status_changed"
+})
+
+// Retry failed webhook delivery
+webhook.retryDelivery({
+  deliveryId: string
+})
+
+// Get webhook delivery statistics
+webhook.getDeliveryStats({
+  customerId: string
+  days?: number // default 7
+})
+
+// Get webhook deliveries with pagination
+webhook.getDeliveries({
+  customerId?: string
+  status?: "PENDING" | "SUCCESS" | "FAILED" | "RETRYING" | "ABANDONED"
+  limit?: number // default 20
+  offset?: number // default 0
+})
+
+// Get webhook delivery details
+webhook.getDeliveryById({
+  deliveryId: string
+})
+
+// Process retry queue manually
+webhook.processRetryQueue()
+
+// Get webhook secret info
+webhook.getWebhookSecret({
+  customerId: string
+})
+
+// Regenerate webhook secret
+webhook.regenerateSecret({
+  customerId: string
 })
 ```
 

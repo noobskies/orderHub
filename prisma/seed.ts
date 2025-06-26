@@ -114,7 +114,7 @@ async function main() {
       orderNumber: "ORD-2024-001",
       customerId: testCustomer.id,
       customerEmail: "customer@test-store.com",
-      status: "PENDING",
+      status: "PENDING" as const,
       priority: "NORMAL",
       originalTotal: 59.98,
       currency: "USD",
@@ -166,7 +166,7 @@ async function main() {
         verified: true,
         lastChecked: new Date().toISOString(),
       },
-      status: "PENDING",
+      status: "PENDING" as const,
     },
   ];
 
