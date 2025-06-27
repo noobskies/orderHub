@@ -182,7 +182,7 @@ orderHub/
 - `npm run db:studio` - Open Prisma Studio
 - `npm run db:seed` - Seed database with initial data
 - `npm run lint` - Run ESLint
-- `npm run type-check` - Run TypeScript checks
+- `npm run typecheck` - Run TypeScript checks
 
 ### Development Workflow
 
@@ -268,9 +268,8 @@ orderHub/
 ## 🤝 Contributing
 
 1. Follow the established code patterns
-2. Write tests for new functionality
-3. Update documentation as needed
-4. Follow the Git workflow described above
+2. Update documentation as needed
+3. Follow the Git workflow described above
 
 ## 📞 Support
 

@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 // In-memory rate limiting store (in production, use Redis)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -68,7 +69,7 @@ function getDefaultKey(request: NextRequest): string {
   // Use IP address as default key
   const forwarded = request.headers.get("x-forwarded-for");
   const ip = forwarded
-    ? forwarded.split(",")[0]
+    ? forwarded.split(",")[0]!.trim()
     : (request.headers.get("x-real-ip") ?? "unknown");
   return ip;
 }

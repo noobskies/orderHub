@@ -106,7 +106,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
  */
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
 
-const rateLimitMiddleware = t.middleware(async ({ ctx, next, path }) => {
+const rateLimitMiddleware = t.middleware(async ({ ctx, next }) => {
   // Only apply rate limiting to authenticated users
   if (!ctx.session?.user) {
     return next();

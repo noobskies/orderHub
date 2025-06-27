@@ -30,7 +30,7 @@ const taobaoUrlSchema = z
   );
 
 // Taobao product data schema
-const taobaoProductSchema = z.object({
+export const taobaoProductSchema = z.object({
   taobaoItemId: z.string(),
   url: z.string().url(),
   title: z.string(),
